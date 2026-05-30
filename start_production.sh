@@ -18,4 +18,4 @@ python scripts/init_db.py
 echo "Starting application server..."
 # Azure App Service sets the PORT environment variable dynamically
 PORT_NUMBER=${PORT:-8000}
-exec gunicorn -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT_NUMBER app.main:app
+exec gunicorn --forwarded-allow-ips="*" -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT_NUMBER app.main:app

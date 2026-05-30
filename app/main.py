@@ -66,6 +66,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# HTTPS Proxy Headers / Forwarded Proto Middleware for Azure App Service
+@app.middleware("http")
+async def forward_proto_middleware(request, call_next):
+    # Check X-Forwarded-Proto header (standard for Azure ARR / App Service proxies)
+    if request.headers.get("x-forwarded-proto") == "https":
+        request.scope["scheme"] = "https"
+    
+    # Check X-Forwarded-Host header to preserve host if routed via front-door/reverse-proxy
+    forwarded_host = request.headers.get("x-forwarded-host")
+    if forwarded_host:
+        headers = dict(request.scope.get("headers", []))
+        headers[b"host"] = forwarded_host.encode("latin1")
+        request.scope["headers"] = [(k, v) for k, v in headers.items()]
+        
+    response = await call_next(request)
+    return response
+
 # Include API router
 app.include_router(api_router, prefix="/api/v1")
 
