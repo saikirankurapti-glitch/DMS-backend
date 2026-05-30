@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./dms.db"
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "http://74.225.253.72:3002", "http://74.225.253.72:6002"]
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "http://74.225.253.72:3002", "http://74.225.253.72:6002", "https://ambitious-moss-06e3a3810.7.azurestaticapps.net"]
     
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v):
