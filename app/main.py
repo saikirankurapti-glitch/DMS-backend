@@ -5,8 +5,27 @@ Pharma Document Management System (DMS)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from contextlib import asynccontextmanager
+import sys
+
 from app.config import settings
 from app.api.v1 import api_router
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Determine if we are running under a test suite (pytest)
+    is_testing = "pytest" in sys.modules or "unittest" in sys.modules
+    
+    if not is_testing:
+        try:
+            from app.initial_data import init_db_and_seed
+            init_db_and_seed()
+        except Exception as e:
+            import logging
+            logger = logging.getLogger("uvicorn.error")
+            logger.critical(f"Database initialization failed on startup: {e}")
+            
+    yield
 
 # Create FastAPI app
 app = FastAPI(
@@ -35,6 +54,7 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
+    lifespan=lifespan,
 )
 
 # Configure CORS
